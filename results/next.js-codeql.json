@@ -5565,9 +5565,9 @@
       "message": "The file may have changed since it [was checked](1).",
       "file": "test/lib/next-modes/base.ts",
       "region": {
-        "startLine": 746,
+        "startLine": 753,
         "startColumn": 11,
-        "endLine": 752,
+        "endLine": 759,
         "endColumn": 6
       },
       "kind": "notApplicable",
@@ -5580,9 +5580,9 @@
       "message": "The file may have changed since it [was checked](1).",
       "file": "test/lib/next-modes/base.ts",
       "region": {
-        "startLine": 761,
+        "startLine": 768,
         "startColumn": 17,
-        "endLine": 763,
+        "endLine": 770,
         "endColumn": 13
       },
       "kind": "notApplicable",

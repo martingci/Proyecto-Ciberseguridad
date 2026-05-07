@@ -1,8 +1,8 @@
 {
-  "total_issues": 844,
+  "total_issues": 840,
   "issues_by_severity": {
     "error": 0,
-    "warning": 844,
+    "warning": 840,
     "note": 0
   },
   "issues": [
@@ -2620,7 +2620,7 @@
       "message": "This expression has no effect.",
       "file": "packages/ai/src/generate-text/generate-text.test.ts",
       "region": {
-        "startLine": 6119,
+        "startLine": 6179,
         "startColumn": 9,
         "endColumn": 22
       },
@@ -4604,7 +4604,7 @@
       "message": "Unused variable object.",
       "file": "packages/ai/src/generate-object/stream-object.test.ts",
       "region": {
-        "startLine": 2200,
+        "startLine": 2198,
         "startColumn": 38,
         "endColumn": 44
       },
@@ -4629,66 +4629,10 @@
       "rule_id": "js/unused-local-variable",
       "rule_index": 152,
       "level": "warning",
-      "message": "Unused variable memoryBeforeRetained.",
-      "file": "packages/ai/src/generate-text/retention-benchmark.test.ts",
-      "region": {
-        "startLine": 226,
-        "startColumn": 13,
-        "endColumn": 33
-      },
-      "kind": "notApplicable",
-      "properties": {}
-    },
-    {
-      "rule_id": "js/unused-local-variable",
-      "rule_index": 152,
-      "level": "warning",
-      "message": "Unused variable memoryAfterRetained.",
-      "file": "packages/ai/src/generate-text/retention-benchmark.test.ts",
-      "region": {
-        "startLine": 245,
-        "startColumn": 13,
-        "endColumn": 32
-      },
-      "kind": "notApplicable",
-      "properties": {}
-    },
-    {
-      "rule_id": "js/unused-local-variable",
-      "rule_index": 152,
-      "level": "warning",
-      "message": "Unused variable memoryBeforeExcluded.",
-      "file": "packages/ai/src/generate-text/retention-benchmark.test.ts",
-      "region": {
-        "startLine": 251,
-        "startColumn": 13,
-        "endColumn": 33
-      },
-      "kind": "notApplicable",
-      "properties": {}
-    },
-    {
-      "rule_id": "js/unused-local-variable",
-      "rule_index": 152,
-      "level": "warning",
-      "message": "Unused variable memoryAfterExcluded.",
-      "file": "packages/ai/src/generate-text/retention-benchmark.test.ts",
-      "region": {
-        "startLine": 271,
-        "startColumn": 13,
-        "endColumn": 32
-      },
-      "kind": "notApplicable",
-      "properties": {}
-    },
-    {
-      "rule_id": "js/unused-local-variable",
-      "rule_index": 152,
-      "level": "warning",
       "message": "Unused variable chunk.",
       "file": "packages/ai/src/generate-text/stream-text.test.ts",
       "region": {
-        "startLine": 4350,
+        "startLine": 4315,
         "startColumn": 24,
         "endColumn": 29
       },
@@ -10850,9 +10794,9 @@
       "message": "Superfluous argument passed to [function TransformStream](1).",
       "file": "packages/ai/src/generate-text/create-execute-tools-transformation.ts",
       "region": {
-        "startLine": 60,
+        "startLine": 63,
         "startColumn": 5,
-        "endLine": 196,
+        "endLine": 200,
         "endColumn": 4
       },
       "kind": "notApplicable",
@@ -10925,9 +10869,9 @@
       "message": "Superfluous argument passed to [function TransformStream](1).",
       "file": "packages/ai/src/generate-text/stream-text.test.ts",
       "region": {
-        "startLine": 11236,
+        "startLine": 11194,
         "startColumn": 11,
-        "endLine": 11248,
+        "endLine": 11206,
         "endColumn": 10
       },
       "kind": "notApplicable",
@@ -10940,9 +10884,9 @@
       "message": "Superfluous argument passed to [function TransformStream](1).",
       "file": "packages/ai/src/generate-text/stream-text.test.ts",
       "region": {
-        "startLine": 15080,
+        "startLine": 14904,
         "startColumn": 11,
-        "endLine": 15119,
+        "endLine": 14943,
         "endColumn": 10
       },
       "kind": "notApplicable",
@@ -10955,9 +10899,9 @@
       "message": "Superfluous argument passed to [function TransformStream](1).",
       "file": "packages/ai/src/generate-text/stream-text.test.ts",
       "region": {
-        "startLine": 15185,
+        "startLine": 15009,
         "startColumn": 75,
-        "endLine": 15207,
+        "endLine": 15029,
         "endColumn": 14
       },
       "kind": "notApplicable",
@@ -10970,9 +10914,9 @@
       "message": "Superfluous argument passed to [function TransformStream](1).",
       "file": "packages/ai/src/generate-text/stream-text.test.ts",
       "region": {
-        "startLine": 15246,
+        "startLine": 15066,
         "startColumn": 75,
-        "endLine": 15253,
+        "endLine": 15073,
         "endColumn": 14
       },
       "kind": "notApplicable",
@@ -10985,9 +10929,9 @@
       "message": "Superfluous argument passed to [function TransformStream](1).",
       "file": "packages/ai/src/generate-text/stream-text.test.ts",
       "region": {
-        "startLine": 16206,
+        "startLine": 16052,
         "startColumn": 77,
-        "endLine": 16218,
+        "endLine": 16064,
         "endColumn": 12
       },
       "kind": "notApplicable",
@@ -11000,9 +10944,9 @@
       "message": "Superfluous argument passed to [function TransformStream](1).",
       "file": "packages/ai/src/generate-text/stream-text.test.ts",
       "region": {
-        "startLine": 16223,
+        "startLine": 16069,
         "startColumn": 77,
-        "endLine": 16235,
+        "endLine": 16081,
         "endColumn": 12
       },
       "kind": "notApplicable",
@@ -11015,9 +10959,9 @@
       "message": "Superfluous argument passed to [function TransformStream](1).",
       "file": "packages/ai/src/generate-text/stream-text.test.ts",
       "region": {
-        "startLine": 16257,
+        "startLine": 16103,
         "startColumn": 77,
-        "endLine": 16296,
+        "endLine": 16142,
         "endColumn": 12
       },
       "kind": "notApplicable",
@@ -11030,9 +10974,9 @@
       "message": "Superfluous argument passed to [function TransformStream](1).",
       "file": "packages/ai/src/generate-text/stream-text.ts",
       "region": {
-        "startLine": 696,
+        "startLine": 707,
         "startColumn": 5,
-        "endLine": 755,
+        "endLine": 766,
         "endColumn": 4
       },
       "kind": "notApplicable",
@@ -11045,9 +10989,9 @@
       "message": "Superfluous argument passed to [function TransformStream](1).",
       "file": "packages/ai/src/generate-text/stream-text.ts",
       "region": {
-        "startLine": 969,
+        "startLine": 980,
         "startColumn": 7,
-        "endLine": 1258,
+        "endLine": 1268,
         "endColumn": 6
       },
       "kind": "notApplicable",
@@ -11060,9 +11004,9 @@
       "message": "Superfluous argument passed to [function TransformStream](1).",
       "file": "packages/ai/src/generate-text/stream-text.ts",
       "region": {
-        "startLine": 1321,
+        "startLine": 1331,
         "startColumn": 27,
-        "endLine": 1327,
+        "endLine": 1337,
         "endColumn": 8
       },
       "kind": "notApplicable",
@@ -11075,25 +11019,10 @@
       "message": "Superfluous argument passed to [function TransformStream](1).",
       "file": "packages/ai/src/generate-text/stream-text.ts",
       "region": {
-        "startLine": 1741,
+        "startLine": 1759,
         "startColumn": 17,
-        "endLine": 2011,
+        "endLine": 2018,
         "endColumn": 16
-      },
-      "kind": "notApplicable",
-      "properties": {}
-    },
-    {
-      "rule_id": "js/superfluous-trailing-arguments",
-      "rule_index": 176,
-      "level": "warning",
-      "message": "Superfluous argument passed to [function TransformStream](1).",
-      "file": "packages/ai/src/generate-text/stream-text.ts",
-      "region": {
-        "startLine": 2168,
-        "startColumn": 11,
-        "endLine": 2174,
-        "endColumn": 10
       },
       "kind": "notApplicable",
       "properties": {}
@@ -11107,7 +11036,7 @@
       "region": {
         "startLine": 2185,
         "startColumn": 11,
-        "endLine": 2189,
+        "endLine": 2191,
         "endColumn": 10
       },
       "kind": "notApplicable",
@@ -11120,9 +11049,9 @@
       "message": "Superfluous argument passed to [function TransformStream](1).",
       "file": "packages/ai/src/generate-text/stream-text.ts",
       "region": {
-        "startLine": 2217,
+        "startLine": 2202,
         "startColumn": 11,
-        "endLine": 2223,
+        "endLine": 2206,
         "endColumn": 10
       },
       "kind": "notApplicable",
@@ -11135,9 +11064,24 @@
       "message": "Superfluous argument passed to [function TransformStream](1).",
       "file": "packages/ai/src/generate-text/stream-text.ts",
       "region": {
-        "startLine": 2296,
+        "startLine": 2234,
+        "startColumn": 11,
+        "endLine": 2240,
+        "endColumn": 10
+      },
+      "kind": "notApplicable",
+      "properties": {}
+    },
+    {
+      "rule_id": "js/superfluous-trailing-arguments",
+      "rule_index": 176,
+      "level": "warning",
+      "message": "Superfluous argument passed to [function TransformStream](1).",
+      "file": "packages/ai/src/generate-text/stream-text.ts",
+      "region": {
+        "startLine": 2313,
         "startColumn": 9,
-        "endLine": 2656,
+        "endLine": 2673,
         "endColumn": 8
       },
       "kind": "notApplicable",
@@ -11660,9 +11604,9 @@
       "message": "Superfluous argument passed to [function TransformStream](1).",
       "file": "packages/otel/src/legacy-open-telemetry.test.ts",
       "region": {
-        "startLine": 3140,
+        "startLine": 3137,
         "startColumn": 27,
-        "endLine": 3151,
+        "endLine": 3148,
         "endColumn": 8
       },
       "kind": "notApplicable",
@@ -11675,9 +11619,9 @@
       "message": "Superfluous argument passed to [function TransformStream](1).",
       "file": "packages/otel/src/legacy-open-telemetry.test.ts",
       "region": {
-        "startLine": 3397,
+        "startLine": 3394,
         "startColumn": 27,
-        "endLine": 3420,
+        "endLine": 3417,
         "endColumn": 8
       },
       "kind": "notApplicable",

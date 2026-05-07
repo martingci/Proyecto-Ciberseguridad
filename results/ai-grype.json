@@ -1,10 +1,10 @@
 {
-  "total_vulnerabilities": 288,
+  "total_vulnerabilities": 289,
   "vulnerabilities_by_severity": {
     "critical": 0,
     "high": 0,
     "medium": 0,
-    "low": 288
+    "low": 289
   },
   "vulnerabilities": [
     {
@@ -295,17 +295,6 @@
     },
     {
       "package_name": "undici",
-      "current_version": "7.21.0",
-      "vuln_id": "GHSA-v9p9-hfj2-hcw8",
-      "vuln_severity": "low",
-      "fix_version": "N/A",
-      "message": "Undici has Unhandled Exception in WebSocket Client Due to Invalid server_max_window_bits Validation",
-      "cwe": "N/A",
-      "cvss_score": 0,
-      "type": "vulnerability"
-    },
-    {
-      "package_name": "undici",
       "current_version": "7.22.0",
       "vuln_id": "GHSA-v9p9-hfj2-hcw8",
       "vuln_severity": "low",
@@ -366,17 +355,6 @@
       "vuln_severity": "low",
       "fix_version": "N/A",
       "message": "Starlette has possible denial-of-service vector when parsing large files in multipart forms",
-      "cwe": "N/A",
-      "cvss_score": 0,
-      "type": "vulnerability"
-    },
-    {
-      "package_name": "undici",
-      "current_version": "7.21.0",
-      "vuln_id": "GHSA-f269-vfmq-vjvj",
-      "vuln_severity": "low",
-      "fix_version": "N/A",
-      "message": "Undici: Malicious WebSocket 64-bit length overflows parser and crashes the client",
       "cwe": "N/A",
       "cvss_score": 0,
       "type": "vulnerability"
@@ -652,6 +630,17 @@
       "vuln_severity": "low",
       "fix_version": "N/A",
       "message": "Predictable results in nanoid generation when given non-integer values",
+      "cwe": "N/A",
+      "cvss_score": 0,
+      "type": "vulnerability"
+    },
+    {
+      "package_name": "fast-xml-parser",
+      "current_version": "5.3.3",
+      "vuln_id": "GHSA-37qj-frw5-hhjh",
+      "vuln_severity": "low",
+      "fix_version": "N/A",
+      "message": "fast-xml-parser has RangeError DoS Numeric Entities Bug",
       "cwe": "N/A",
       "cvss_score": 0,
       "type": "vulnerability"
@@ -1196,6 +1185,17 @@
       "type": "vulnerability"
     },
     {
+      "package_name": "fast-xml-parser",
+      "current_version": "5.3.3",
+      "vuln_id": "GHSA-jp2q-39xq-3w4g",
+      "vuln_severity": "low",
+      "fix_version": "N/A",
+      "message": "Entity Expansion Limits Bypassed When Set to Zero Due to JavaScript Falsy Evaluation in fast-xml-parser",
+      "cwe": "N/A",
+      "cvss_score": 0,
+      "type": "vulnerability"
+    },
+    {
       "package_name": "hono",
       "current_version": "4.6.9",
       "vuln_id": "GHSA-9r54-q6cx-xmh5",
@@ -1213,6 +1213,17 @@
       "vuln_severity": "low",
       "fix_version": "N/A",
       "message": "Koa Open Redirect via Referrer Header (User-Controlled)",
+      "cwe": "N/A",
+      "cvss_score": 0,
+      "type": "vulnerability"
+    },
+    {
+      "package_name": "fast-xml-parser",
+      "current_version": "5.3.3",
+      "vuln_id": "GHSA-jmr7-xgp7-cmfj",
+      "vuln_severity": "low",
+      "fix_version": "N/A",
+      "message": "fast-xml-parser affected by DoS through entity expansion in DOCTYPE (no expansion limit)",
       "cwe": "N/A",
       "cvss_score": 0,
       "type": "vulnerability"
@@ -1317,6 +1328,17 @@
       "type": "vulnerability"
     },
     {
+      "package_name": "fast-xml-parser",
+      "current_version": "5.3.3",
+      "vuln_id": "GHSA-8gc5-j5rx-235r",
+      "vuln_severity": "low",
+      "fix_version": "N/A",
+      "message": "fast-xml-parser affected by numeric entity expansion bypassing all entity expansion limits (incomplete fix for CVE-2026-26278)",
+      "cwe": "N/A",
+      "cvss_score": 0,
+      "type": "vulnerability"
+    },
+    {
       "package_name": "minimatch",
       "current_version": "3.1.2",
       "vuln_id": "GHSA-23c5-xmqv-rm74",
@@ -1378,6 +1400,17 @@
       "vuln_severity": "low",
       "fix_version": "N/A",
       "message": "LangSmith SDK: Streaming token events bypass output redaction",
+      "cwe": "N/A",
+      "cvss_score": 0,
+      "type": "vulnerability"
+    },
+    {
+      "package_name": "fast-xml-parser",
+      "current_version": "5.3.3",
+      "vuln_id": "GHSA-m7jm-9gc2-mpf2",
+      "vuln_severity": "low",
+      "fix_version": "N/A",
+      "message": "fast-xml-parser has an entity encoding bypass via regex injection in DOCTYPE entity names",
       "cwe": "N/A",
       "cvss_score": 0,
       "type": "vulnerability"
@@ -1581,6 +1614,17 @@
       "type": "vulnerability"
     },
     {
+      "package_name": "fast-xml-parser",
+      "current_version": "5.3.3",
+      "vuln_id": "GHSA-fj3w-jwp8-x2g3",
+      "vuln_severity": "low",
+      "fix_version": "N/A",
+      "message": "fast-xml-parser has stack overflow in XMLBuilder with preserveOrder",
+      "cwe": "N/A",
+      "cvss_score": 0,
+      "type": "vulnerability"
+    },
+    {
       "package_name": "flatted",
       "current_version": "3.3.2",
       "vuln_id": "GHSA-25h7-pfq9-p65f",
@@ -1671,17 +1715,6 @@
     {
       "package_name": "undici",
       "current_version": "5.28.4",
-      "vuln_id": "GHSA-vrm6-8vpv-qv8q",
-      "vuln_severity": "low",
-      "fix_version": "N/A",
-      "message": "Undici has Unbounded Memory Consumption in WebSocket permessage-deflate Decompression",
-      "cwe": "N/A",
-      "cvss_score": 0,
-      "type": "vulnerability"
-    },
-    {
-      "package_name": "undici",
-      "current_version": "7.21.0",
       "vuln_id": "GHSA-vrm6-8vpv-qv8q",
       "vuln_severity": "low",
       "fix_version": "N/A",
@@ -2011,17 +2044,6 @@
     },
     {
       "package_name": "undici",
-      "current_version": "7.21.0",
-      "vuln_id": "GHSA-phc3-fgpg-7m6h",
-      "vuln_severity": "low",
-      "fix_version": "N/A",
-      "message": "Undici has Unbounded Memory Consumption in its DeduplicationHandler via Response Buffering that leads to DoS",
-      "cwe": "N/A",
-      "cvss_score": 0,
-      "type": "vulnerability"
-    },
-    {
-      "package_name": "undici",
       "current_version": "7.22.0",
       "vuln_id": "GHSA-phc3-fgpg-7m6h",
       "vuln_severity": "low",
@@ -2034,17 +2056,6 @@
     {
       "package_name": "undici",
       "current_version": "5.28.4",
-      "vuln_id": "GHSA-2mjp-6q6p-2qxm",
-      "vuln_severity": "low",
-      "fix_version": "N/A",
-      "message": "Undici has an HTTP Request/Response Smuggling issue",
-      "cwe": "N/A",
-      "cvss_score": 0,
-      "type": "vulnerability"
-    },
-    {
-      "package_name": "undici",
-      "current_version": "7.21.0",
       "vuln_id": "GHSA-2mjp-6q6p-2qxm",
       "vuln_severity": "low",
       "fix_version": "N/A",
@@ -2517,17 +2528,6 @@
     },
     {
       "package_name": "undici",
-      "current_version": "7.21.0",
-      "vuln_id": "GHSA-4992-7rv2-5pvq",
-      "vuln_severity": "low",
-      "fix_version": "N/A",
-      "message": "Undici has CRLF Injection in undici via `upgrade` option",
-      "cwe": "N/A",
-      "cvss_score": 0,
-      "type": "vulnerability"
-    },
-    {
-      "package_name": "undici",
       "current_version": "7.22.0",
       "vuln_id": "GHSA-4992-7rv2-5pvq",
       "vuln_severity": "low",
@@ -2797,6 +2797,17 @@
       "vuln_severity": "low",
       "fix_version": "N/A",
       "message": "esbuild enables any website to send any requests to the development server and read the response",
+      "cwe": "N/A",
+      "cvss_score": 0,
+      "type": "vulnerability"
+    },
+    {
+      "package_name": "fast-xml-parser",
+      "current_version": "5.3.3",
+      "vuln_id": "GHSA-gh4j-gqv2-49f6",
+      "vuln_severity": "low",
+      "fix_version": "N/A",
+      "message": "fast-xml-parser XMLBuilder: XML Comment and CDATA Injection via Unescaped Delimiters",
       "cwe": "N/A",
       "cvss_score": 0,
       "type": "vulnerability"
