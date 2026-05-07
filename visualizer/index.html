@@ -1,0 +1,1122 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodeQL Analysis Dashboard</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #1e1e2e;
+            /* Un tono oscuro estilo Catppuccin/Ghostty */
+            color: #cdd6f4;
+            margin: 0;
+            padding: 20px;
+        }
+
+        /* Grid para las tarjetas de repositorios */
+        .repo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+        }
+
+        .repo-mini-card {
+            background-color: #11111b;
+            /* Fondo un poco más oscuro para contrastar */
+            border: 1px solid #313244;
+            border-radius: 6px;
+            padding: 15px;
+        }
+
+        .repo-mini-card h3 {
+            margin-top: 0;
+            color: #cba6f7;
+            /* Un tono Mauve/Lila para el título */
+            font-size: 16px;
+            border-bottom: 1px dashed #313244;
+            padding-bottom: 8px;
+            margin-bottom: 15px;
+        }
+
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .chart-card {
+            background-color: #181825;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            margin-bottom: 20px;
+        }
+
+        h2 {
+            margin-top: 0;
+            border-bottom: 1px solid #313244;
+            padding-bottom: 10px;
+        }
+
+        /* Colores para las severidades */
+        .bar-error {
+            fill: #f38ba8;
+        }
+
+        /* Rojo */
+        .bar-warning {
+            fill: #f9e2af;
+        }
+
+        /* Amarillo */
+        .bar-note {
+            fill: #a6adc8;
+        }
+
+        /* Gris/Blanco */
+
+        .axis-text {
+            fill: #cdd6f4;
+            font-size: 14px;
+        }
+
+        .axis-line {
+            stroke: #45475a;
+        }
+
+        .label-text {
+            fill: #1e1e2e;
+            font-weight: bold;
+            font-size: 12px;
+            text-anchor: middle;
+        }
+
+        /* Estilos para la Tarjeta de Alerta (Peor Repo) */
+        .alert-card {
+            border-top: 4px solid #f38ba8;
+            /* Borde superior rojo */
+        }
+
+        .kpi-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: #11111b;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .kpi-data {
+            flex: 1;
+        }
+
+        .kpi-title {
+            color: #bac2de;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+
+        .kpi-repo-name {
+            color: #f38ba8;
+            /* Rojo */
+            font-size: 28px;
+            font-weight: bold;
+            margin: 0 0 10px 0;
+        }
+
+        .kpi-numbers {
+            font-size: 18px;
+            color: #cdd6f4;
+        }
+
+        .kpi-numbers span {
+            color: #fab387;
+            /* Naranja/Peach */
+            font-weight: bold;
+            font-size: 24px;
+        }
+
+        /* --- Contenedores de Sección Global (CodeQL, Grype, Cualitativo) --- */
+        .analysis-section {
+            background-color: #181825;
+            /* Fondo de sección */
+            border: 1px solid #313244;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 50px;
+            /* Separación grande entre herramientas */
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+        }
+
+        .section-header {
+            color: #89b4fa;
+            /* Color azul distintivo para títulos de sección */
+            font-size: 28px;
+            margin-top: 0;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #313244;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        /* Modificamos un poco las chart-cards para que destaquen sobre el nuevo fondo */
+        .chart-card {
+            background-color: #1e1e2e;
+            /* Intercambiamos el fondo para dar profundidad */
+            border: 1px solid #313244;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        /* Colores específicos para severidades de Grype */
+        .bar-critical {
+            fill: #ed8796;
+        }
+
+        /* Rojo intenso */
+        .bar-high {
+            fill: #fab387;
+        }
+
+        /* Naranja/Peach */
+        .bar-medium {
+            fill: #f9e2af;
+        }
+
+        /* Amarillo */
+        .bar-low {
+            fill: #89dceb;
+        }
+
+        /* Celeste/Azul claro */
+    </style>
+</head>
+
+<body>
+
+    <div class="dashboard-container">
+        <h1 style="font-size: 36px; margin-bottom: 5px;">📊 Dashboard de Seguridad y Vulnerabilidades</h1>
+        <h3 style="color: #a6adc8; margin-top: 0; margin-bottom: 40px;">Integrantes: David Baez, Martin Carrasco,
+            Sabrina Lopez</h3>
+
+        <div class="analysis-section" id="section-codeql">
+            <h2 class="section-header">🛡️ Análisis Estático (SAST) con CodeQL</h2>
+
+            <div class="chart-card">
+                <h2>Problemas por Nivel de Severidad</h2>
+                <div id="chart-severity"></div>
+            </div>
+            <div class="chart-card">
+                <h2>Problemas CodeQL por Repositorio</h2>
+                <div id="chart-repo"></div>
+            </div>
+            <div class="chart-card">
+                <h2>Top 5 Reglas de Seguridad Más Frecuentes</h2>
+                <div id="chart-rules"></div>
+            </div>
+            <div class="chart-card">
+                <h2>Top 5 Reglas por Repositorio</h2>
+                <div id="repo-rules-grid" class="repo-grid"></div>
+            </div>
+            <div class="chart-card alert-card">
+                <h2>🚨 Atención Requerida: Repositorio Más Crítico</h2>
+                <div id="peor-repo-kpi" class="kpi-container"></div>
+                <h3 style="font-size: 16px; margin-top: 20px; color: #a6adc8;">Top 5 Reglas en este repositorio:</h3>
+                <div id="chart-peor-repo"></div>
+            </div>
+            <div class="chart-card">
+                <h2>Top 3 Archivos Críticos por Repositorio</h2>
+                <div id="repo-files-grid" class="repo-grid"></div>
+            </div>
+        </div>
+
+
+        <div class="analysis-section" id="section-grype">
+            <h2 class="section-header" style="color: #a6e3a1;">📦 Análisis de Dependencias (SCA) con Grype</h2>
+
+            <div class="chart-card">
+                <h2>Vulnerabilidades por Nivel de Severidad CVSS</h2>
+                <div id="chart-grype-severity"></div>
+            </div>
+            <div class="chart-card">
+                <h2>Concentración de Vulnerabilidades por Puntaje CVSS Exacto</h2>
+                <div id="chart-grype-cvss"></div>
+                <p style="text-align: center; color: #a6adc8; font-size: 12px; margin-top: 10px;">
+                    * Pasa el cursor sobre los puntos para ver el paquete afectado.
+                </p>
+            </div>
+            <div class="chart-card">
+                <h2>Vulnerabilidades Grype por Repositorio</h2>
+                <div id="chart-grype-repo"></div>
+            </div>
+            <div class="chart-card">
+                <h2>Top 3 Paquetes Críticos (Más Vulnerables)</h2>
+                <div id="grype-pkgs-grid" class="repo-grid"></div>
+            </div>
+            <div class="analysis-section" id="section-global">
+                <h2 class="section-header" style="color: #f9e2af;">🌍 Resumen Global (CodeQL + Grype)</h2>
+
+                <div id="global-kpi-container" style="display: flex; gap: 20px; flex-wrap: wrap;">
+                </div>
+            </div>
+
+        </div>
+
+
+        <div class="analysis-section" id="section-cualitativo">
+            <h2 class="section-header" style="color: #cba6f7;">📝 Análisis Cualitativo y Conclusiones</h2>
+
+            <p style="color: #a6adc8; font-style: italic;">Las conclusiones se cargarán aquí...</p>
+
+        </div>
+
+    </div>
+
+    <script>
+        // Ahora solo apuntamos al JSON pre-procesado por Python
+        const DATA_URL = '../results/codeql-analisis/estadisticas-severidad.json';
+
+        d3.json(DATA_URL).then(data => {
+            console.log("Datos pre-procesados cargados:", data);
+
+            // Opcional: Filtramos los que tengan count en 0 para no mostrarlos
+            let chartData = data.filter(d => d.count > 0);
+
+            // Ordenamos de mayor a menor cantidad
+            chartData.sort((a, b) => b.count - a.count);
+
+            // Renderizamos el gráfico directamente
+            renderSeverityChart(chartData);
+
+        }).catch(error => {
+            console.error("Error cargando el JSON de severidad:", error);
+        });
+
+        function renderSeverityChart(data) {
+            const margin = { top: 20, right: 30, bottom: 40, left: 90 };
+            const width = 600 - margin.left - margin.right;
+            const height = 300 - margin.top - margin.bottom;
+
+            d3.select("#chart-severity").selectAll("*").remove();
+
+            const svg = d3.select("#chart-severity")
+                .append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                .append("g")
+                .attr("transform", `translate(${margin.left},${margin.top})`);
+
+            const x = d3.scaleLinear()
+                .domain([0, d3.max(data, d => d.count)])
+                .range([0, width]);
+
+            const y = d3.scaleBand()
+                .domain(data.map(d => d.level))
+                .range([0, height])
+                .padding(0.2);
+
+            svg.append("g")
+                .attr("transform", `translate(0,${height})`)
+                .call(d3.axisBottom(x).ticks(5))
+                .selectAll("text").attr("class", "axis-text");
+
+            svg.append("g")
+                .call(d3.axisLeft(y))
+                .selectAll("text")
+                .attr("class", "axis-text")
+                .style("text-transform", "capitalize");
+
+            svg.selectAll(".domain").attr("class", "axis-line");
+
+            svg.selectAll("myRect")
+                .data(data)
+                .enter()
+                .append("rect")
+                .attr("x", x(0))
+                .attr("y", d => y(d.level))
+                .attr("width", d => x(d.count))
+                .attr("height", y.bandwidth())
+                .attr("class", d => `bar-${d.level}`)
+                .attr("rx", 4);
+
+            svg.selectAll("myLabels")
+                .data(data)
+                .enter()
+                .append("text")
+                .attr("class", "label-text")
+                .attr("x", d => x(d.count) - 15)
+                .attr("y", d => y(d.level) + y.bandwidth() / 2 + 4)
+                .text(d => d.count)
+                .style("fill", d => d.level === 'note' ? '#1e1e2e' : '#1e1e2e');
+        }
+
+        // --- LÓGICA PARA EL GRÁFICO DE REPOSITORIOS ---
+        const REPO_URL = '../results/codeql-analisis/estadisticas-repo.json';
+
+        d3.json(REPO_URL).then(data => {
+            // Ordenamos de mayor a menor para que el repo con más issues quede arriba
+            data.sort((a, b) => b.count - a.count);
+            renderRepoChart(data);
+        }).catch(error => {
+            console.error("Error cargando el JSON de repositorios:", error);
+        });
+
+        function renderRepoChart(data) {
+            // Aumentamos el margen izquierdo porque los nombres de los repositorios suelen ser largos
+            const margin = { top: 20, right: 30, bottom: 40, left: 150 };
+            const width = 800 - margin.left - margin.right; // Un poco más ancho
+            // Altura dinámica: depende de cuántos repositorios tengas
+            const height = Math.max(300, data.length * 35) - margin.top - margin.bottom;
+
+            d3.select("#chart-repo").selectAll("*").remove();
+
+            const svg = d3.select("#chart-repo")
+                .append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                .append("g")
+                .attr("transform", `translate(${margin.left},${margin.top})`);
+
+            // Escalas (X es lineal para las cantidades, Y es de bandas para los textos)
+            const x = d3.scaleLinear()
+                .domain([0, d3.max(data, d => d.count)])
+                .range([0, width]);
+
+            const y = d3.scaleBand()
+                .domain(data.map(d => d.repo))
+                .range([0, height])
+                .padding(0.2);
+
+            // --- GRADIENTE MORADO ---
+            // Escala secuencial que va desde un morado claro a uno oscuro según la cantidad
+            const colorScale = d3.scaleSequential(d3.interpolatePurples)
+                .domain([0, d3.max(data, d => d.count)]);
+
+            // Ejes
+            svg.append("g")
+                .attr("transform", `translate(0,${height})`)
+                .call(d3.axisBottom(x).ticks(5))
+                .selectAll("text").attr("class", "axis-text");
+
+            svg.append("g")
+                .call(d3.axisLeft(y))
+                .selectAll("text")
+                .attr("class", "axis-text");
+
+            svg.selectAll(".domain").attr("class", "axis-line");
+
+            // Dibujar barras horizontales
+            svg.selectAll("myRect")
+                .data(data)
+                .enter()
+                .append("rect")
+                .attr("x", x(0))
+                .attr("y", d => y(d.repo))
+                .attr("width", d => x(d.count))
+                .attr("height", y.bandwidth())
+                // Usamos la escala de color morada, pero le aplicamos un mínimo de oscuridad 
+                // para que no quede blanco contra el fondo oscuro
+                .attr("fill", d => {
+                    const colorBase = colorScale(d.count);
+                    // Si tienes muy pocos issues y queda casi transparente, forza un morado visible
+                    return d.count === 0 ? "transparent" : d3.color(colorBase).darker(0.5);
+                })
+                .attr("rx", 4);
+
+            // Etiquetas de datos numéricos al final de cada barra
+            svg.selectAll("myLabels")
+                .data(data)
+                .enter()
+                .append("text")
+                .attr("class", "label-text")
+                .attr("x", d => x(d.count) + 5) // 5px a la derecha del borde de la barra
+                .attr("y", d => y(d.repo) + y.bandwidth() / 2 + 4)
+                .text(d => d.count)
+                .style("fill", "#cdd6f4") // Texto claro para contrastar con el fondo
+                .style("text-anchor", "start");
+        }
+        // --- LÓGICA PARA EL GRÁFICO DE TOP REGLAS ---
+        const RULES_URL = '../results/codeql-analisis/estadisticas-reglas.json';
+
+        d3.json(RULES_URL).then(data => {
+            // Los datos ya vienen ordenados de Python, los pasamos a la función
+            renderRulesChart(data);
+        }).catch(error => {
+            console.error("Error cargando el JSON de reglas:", error);
+        });
+
+        function renderRulesChart(data) {
+            // Margen izquierdo amplio (220) para que quepan los nombres de las reglas
+            const margin = { top: 20, right: 40, bottom: 40, left: 220 };
+            const width = 800 - margin.left - margin.right;
+            const height = Math.max(300, data.length * 35) - margin.top - margin.bottom;
+
+            d3.select("#chart-rules").selectAll("*").remove();
+
+            const svg = d3.select("#chart-rules")
+                .append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                .append("g")
+                .attr("transform", `translate(${margin.left},${margin.top})`);
+
+            const x = d3.scaleLinear()
+                .domain([0, d3.max(data, d => d.count)])
+                .range([0, width]);
+
+            const y = d3.scaleBand()
+                .domain(data.map(d => d.rule_id))
+                .range([0, height])
+                .padding(0.2);
+
+            // Usamos un color fijo (Sapphire / Azul claro) para contrastar
+            const barColor = "#74c7ec";
+
+            // Ejes
+            svg.append("g")
+                .attr("transform", `translate(0,${height})`)
+                .call(d3.axisBottom(x).ticks(5))
+                .selectAll("text").attr("class", "axis-text");
+
+            svg.append("g")
+                .call(d3.axisLeft(y))
+                .selectAll("text")
+                .attr("class", "axis-text");
+
+            svg.selectAll(".domain").attr("class", "axis-line");
+
+            // Dibujar barras horizontales
+            svg.selectAll("myRect")
+                .data(data)
+                .enter()
+                .append("rect")
+                .attr("x", x(0))
+                .attr("y", d => y(d.rule_id))
+                .attr("width", d => x(d.count))
+                .attr("height", y.bandwidth())
+                .attr("fill", barColor)
+                .attr("rx", 4);
+
+            // Etiquetas numéricas al final de la barra
+            svg.selectAll("myLabels")
+                .data(data)
+                .enter()
+                .append("text")
+                .attr("class", "label-text")
+                .attr("x", d => x(d.count) + 8) // 8px a la derecha del borde
+                .attr("y", d => y(d.rule_id) + y.bandwidth() / 2 + 4)
+                .text(d => d.count)
+                .style("fill", "#cdd6f4")
+                .style("text-anchor", "start");
+        }
+        // --- LÓGICA PARA EL GRID DE REGLAS POR REPOSITORIO ---
+        const REPO_RULES_URL = '../results/codeql-analisis/estadisticas-repo-reglas.json';
+
+        d3.json(REPO_RULES_URL).then(data => {
+            renderRepoRulesGrid(data);
+        }).catch(error => {
+            console.error("Error cargando el JSON de reglas por repo:", error);
+        });
+
+        function renderRepoRulesGrid(data) {
+            const grid = d3.select("#repo-rules-grid");
+            grid.selectAll("*").remove();
+
+            // 1. Crear una tarjeta por cada repositorio
+            const cards = grid.selectAll(".repo-mini-card")
+                .data(data)
+                .enter()
+                .append("div")
+                .attr("class", "repo-mini-card");
+
+            // 2. Añadir el título (Nombre del repo)
+            cards.append("h3")
+                .text(d => `📁 ${d.repo}`);
+
+            // 3. Crear una fila por cada regla dentro de la tarjeta
+            const rulesRows = cards.selectAll(".rule-row")
+                .data(d => {
+                    // Pasamos el conteo máximo del repo a cada regla para calcular el ancho de la barra
+                    const maxCount = d.rules[0].count; // El primero siempre es el mayor porque lo ordenaste en Python
+                    return d.rules.map(r => ({ ...r, maxCount: maxCount }));
+                })
+                .enter()
+                .append("div")
+                .attr("class", "rule-row")
+                .style("margin-bottom", "12px");
+
+            // 4. Añadir texto de la regla y contador (Flexbox para separar textos)
+            const textContainer = rulesRows.append("div")
+                .style("display", "flex")
+                .style("justify-content", "space-between")
+                .style("align-items", "center")
+                .style("margin-bottom", "4px")
+                .style("font-size", "12px");
+
+            textContainer.append("span")
+                .style("color", "#bac2de")
+                .style("white-space", "nowrap")
+                .style("overflow", "hidden")
+                .style("text-overflow", "ellipsis")
+                .style("max-width", "80%") // Evita que un texto muy largo rompa la tarjeta
+                .text(d => d.rule_id);
+
+            textContainer.append("span")
+                .style("font-weight", "bold")
+                .style("color", "#89b4fa") // Azul
+                .text(d => `${d.count} (${d.percentage}%)`);
+
+            // 5. Añadir la mini barra de progreso visual
+            const barBackground = rulesRows.append("div")
+                .style("background-color", "#313244")
+                .style("height", "6px")
+                .style("border-radius", "3px")
+                .style("width", "100%");
+
+            barBackground.append("div")
+                .style("background-color", "#89b4fa") // Mismo azul del contador
+                .style("height", "10px") // Truco: la barra es un poco más gruesa que el fondo
+                .style("border-radius", "3px")
+                .style("margin-top", "-2px") // Centra verticalmente la barra gruesa
+                // Calcula el % de ancho relativo a la regla con más problemas en ESE repositorio
+                .style("width", d => `${(d.count / d.maxCount) * 100}%`);
+        }
+
+
+        // --- LÓGICA PARA EL HIGHLIGHT DEL PEOR REPOSITORIO ---
+        const PEOR_REPO_URL = '../results/codeql-analisis/estadisticas-peor-repo.json';
+
+        d3.json(PEOR_REPO_URL).then(data => {
+            renderPeorRepo(data);
+        }).catch(error => {
+            console.error("Error cargando el JSON del peor repo:", error);
+        });
+
+        function renderPeorRepo(data) {
+            // 1. Llenar los datos numéricos (Big Numbers / KPI)
+            const kpiContainer = d3.select("#peor-repo-kpi");
+            kpiContainer.selectAll("*").remove();
+
+            kpiContainer.html(`
+            <div class="kpi-data">
+                <div class="kpi-title">Repositorio Crítico</div>
+                <h3 class="kpi-repo-name">${data.repo_name}</h3>
+                <div class="kpi-numbers">
+                    Contiene <span>${data.total_issues}</span> problemas <br>
+                    <small style="color: #a6adc8;">Representa el <b>${data.percentage_of_total}%</b> de todos los hallazgos a nivel global.</small>
+                </div>
+            </div>
+        `);
+
+            // 2. Dibujar el mini gráfico de barras para el Top 5
+            const rulesData = data.top_rules;
+
+            // Dimensiones más compactas
+            const margin = { top: 10, right: 40, bottom: 30, left: 220 };
+            const width = 800 - margin.left - margin.right;
+            const height = (rulesData.length * 40) - margin.top - margin.bottom;
+
+            d3.select("#chart-peor-repo").selectAll("*").remove();
+
+            const svg = d3.select("#chart-peor-repo")
+                .append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                .append("g")
+                .attr("transform", `translate(${margin.left},${margin.top})`);
+
+            const x = d3.scaleLinear()
+                .domain([0, d3.max(rulesData, d => d.count)])
+                .range([0, width]);
+
+            const y = d3.scaleBand()
+                .domain(rulesData.map(d => d.rule_id))
+                .range([0, height])
+                .padding(0.3);
+
+            // Ejes
+            svg.append("g")
+                .attr("transform", `translate(0,${height})`)
+                .call(d3.axisBottom(x).ticks(5))
+                .selectAll("text").attr("class", "axis-text");
+
+            svg.append("g")
+                .call(d3.axisLeft(y))
+                .selectAll("text")
+                .attr("class", "axis-text");
+
+            svg.selectAll(".domain").attr("class", "axis-line");
+
+            // Barras (Rojizas para alertar)
+            svg.selectAll("myRect")
+                .data(rulesData)
+                .enter()
+                .append("rect")
+                .attr("x", x(0))
+                .attr("y", d => y(d.rule_id))
+                .attr("width", d => x(d.count))
+                .attr("height", y.bandwidth())
+                .attr("fill", "#eba0ac") // Tono Maroon de Catppuccin
+                .attr("rx", 3);
+
+            // Etiquetas numéricas
+            svg.selectAll("myLabels")
+                .data(rulesData)
+                .enter()
+                .append("text")
+                .attr("class", "label-text")
+                .attr("x", d => x(d.count) + 8)
+                .attr("y", d => y(d.rule_id) + y.bandwidth() / 2 + 4)
+                .text(d => d.count)
+                .style("fill", "#cdd6f4")
+                .style("text-anchor", "start");
+        }
+
+
+        // --- LÓGICA PARA EL GRID DE ARCHIVOS POR REPOSITORIO ---
+        const REPO_FILES_URL = '../results/codeql-analisis/estadisticas-repo-archivos.json';
+
+        d3.json(REPO_FILES_URL).then(data => {
+            renderRepoFilesGrid(data);
+        }).catch(error => {
+            console.error("Error cargando el JSON de archivos por repo:", error);
+        });
+
+        function renderRepoFilesGrid(data) {
+            const grid = d3.select("#repo-files-grid");
+            grid.selectAll("*").remove();
+
+            const cards = grid.selectAll(".repo-mini-card")
+                .data(data)
+                .enter()
+                .append("div")
+                .attr("class", "repo-mini-card");
+
+            // Título de la tarjeta
+            cards.append("h3")
+                .text(d => `📁 ${d.repo}`);
+
+            // Filas para cada archivo
+            const filesRows = cards.selectAll(".file-row")
+                .data(d => {
+                    const maxCount = d.files[0].count; // El top 1 para calcular el porcentaje de la barra
+                    return d.files.map(f => ({ ...f, maxCount: maxCount }));
+                })
+                .enter()
+                .append("div")
+                .attr("class", "file-row")
+                .style("margin-bottom", "12px");
+
+            const textContainer = filesRows.append("div")
+                .style("display", "flex")
+                .style("justify-content", "space-between")
+                .style("align-items", "center")
+                .style("margin-bottom", "4px")
+                .style("font-size", "12px");
+
+            // Nombre del archivo (con estilo de terminal/código)
+            textContainer.append("span")
+                .style("color", "#a6e3a1") // Tono verde estilo consola
+                .style("font-family", "monospace") // Clave para visualizar rutas de archivos
+                .style("white-space", "nowrap")
+                .style("overflow", "hidden")
+                .style("text-overflow", "ellipsis")
+                .style("max-width", "75%")
+                // Direction RTL (Right-to-Left) es un truco visual increíble para rutas largas: 
+                // corta el inicio (carpetas root) y prioriza mostrar el nombre del archivo al final.
+                .style("direction", "rtl")
+                .style("text-align", "left")
+                .attr("title", d => d.file_path) // Tooltip nativo: muestra la ruta completa al hacer hover
+                // El caracter direccional LRM (Left-to-Right Mark) fuerza a que el texto se lea correctamente aunque usemos RTL para truncar
+                .text(d => '\u200E' + d.file_path);
+
+            // Contador y porcentaje
+            textContainer.append("span")
+                .style("font-weight", "bold")
+                .style("color", "#a6e3a1")
+                .text(d => `${d.count} (${d.percentage}%)`);
+
+            // Barra de progreso visual
+            const barBackground = filesRows.append("div")
+                .style("background-color", "#313244")
+                .style("height", "6px")
+                .style("border-radius", "3px")
+                .style("width", "100%");
+
+            barBackground.append("div")
+                .style("background-color", "#a6e3a1")
+                .style("height", "10px")
+                .style("border-radius", "3px")
+                .style("margin-top", "-2px")
+                .style("width", d => `${(d.count / d.maxCount) * 100}%`);
+        }
+
+
+        // =========================================================
+        // --- LÓGICA PARA GRYPE: SEVERIDAD CVSS ---
+        // =========================================================
+        // Ajusta la ruta a la carpeta donde estés guardando los resultados
+        const GRYPE_SEV_URL = '../results/grype-analisis/grype-severidad.json';
+
+        d3.json(GRYPE_SEV_URL).then(data => {
+            renderGrypeSeverityChart(data);
+        }).catch(error => {
+            console.error("Error cargando el JSON de severidad Grype:", error);
+        });
+
+        function renderGrypeSeverityChart(data) {
+            // Un margen izquierdo un poco más ancho (140) para acomodar "CRITICAL (9.0-10.0)"
+            const margin = { top: 20, right: 100, bottom: 40, left: 160 };
+            const width = 800 - margin.left - margin.right;
+            const height = 300 - margin.top - margin.bottom;
+
+            d3.select("#chart-grype-severity").selectAll("*").remove();
+
+            const svg = d3.select("#chart-grype-severity")
+                .append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                .append("g")
+                .attr("transform", `translate(${margin.left},${margin.top})`);
+
+            // Escala X para las cantidades
+            const x = d3.scaleLinear()
+                .domain([0, d3.max(data, d => d.count)])
+                .range([0, width]);
+
+            // Escala Y. Ya viene en el orden ['critical', 'high', 'medium', 'low'] desde Python
+            const y = d3.scaleBand()
+                .domain(data.map(d => d.level))
+                .range([0, height])
+                .padding(0.2);
+
+            // Eje X
+            svg.append("g")
+                .attr("transform", `translate(0,${height})`)
+                .call(d3.axisBottom(x).ticks(5).tickFormat(d3.format("d"))) // Forzar números enteros
+                .selectAll("text").attr("class", "axis-text");
+
+            // Eje Y (Personalizado para mostrar el nombre + el rango CVSS)
+            const yAxis = svg.append("g")
+                .call(d3.axisLeft(y).tickFormat(d => {
+                    const row = data.find(item => item.level === d);
+                    return `${d.toUpperCase()} (${row.cvss})`;
+                }))
+                .selectAll("text")
+                .attr("class", "axis-text");
+
+            // Ocultar la línea negra del eje
+            svg.selectAll(".domain").attr("class", "axis-line");
+
+            // Dibujar las barras horizontales
+            svg.selectAll("myRect")
+                .data(data)
+                .enter()
+                .append("rect")
+                .attr("x", x(0))
+                .attr("y", d => y(d.level))
+                .attr("width", d => x(d.count))
+                .attr("height", y.bandwidth())
+                // Asigna la clase de color según el nivel (ej: bar-critical, bar-high)
+                .attr("class", d => `bar-${d.level}`)
+                .attr("rx", 4);
+
+            // Etiquetas numéricas + Porcentaje al final de la barra
+            svg.selectAll("myLabels")
+                .data(data)
+                .enter()
+                .append("text")
+                .attr("class", "label-text")
+                .attr("x", d => x(d.count) + 8)
+                .attr("y", d => y(d.level) + y.bandwidth() / 2 + 4)
+                .text(d => `${d.count} (${d.percentage}%)`)
+                .style("fill", "#cdd6f4")
+                .style("text-anchor", "start")
+                // Si el contador es 0, hacemos el texto un poco más transparente para no llamar tanto la atención
+                .style("opacity", d => d.count === 0 ? 0.4 : 1);
+        }
+        // =========================================================
+        // --- LÓGICA PARA GRYPE: SCATTER PLOT CVSS (JITTER) ---
+        // =========================================================
+        const GRYPE_CVSS_URL = '../results/grype-analisis/grype-cvss.json';
+
+        d3.json(GRYPE_CVSS_URL).then(data => {
+            renderGrypeCvssChart(data);
+        }).catch(error => {
+            console.error("Error cargando el JSON de dispersión CVSS:", error);
+        });
+
+        function renderGrypeCvssChart(data) {
+            // Este gráfico es delgado (tipo franja), por lo que height es pequeño
+            const margin = { top: 20, right: 40, bottom: 40, left: 40 };
+            const width = 800 - margin.left - margin.right;
+            const height = 200 - margin.top - margin.bottom;
+
+            d3.select("#chart-grype-cvss").selectAll("*").remove();
+
+            const svg = d3.select("#chart-grype-cvss")
+                .append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                .append("g")
+                .attr("transform", `translate(${margin.left},${margin.top})`);
+
+            // Escala X (De -0.5 a 10.5 igual que en Matplotlib)
+            const x = d3.scaleLinear()
+                .domain([-0.5, 10.5])
+                .range([0, width]);
+
+            // Eje X (Mostrar números del 0 al 10)
+            svg.append("g")
+                .attr("transform", `translate(0,${height})`)
+                .call(d3.axisBottom(x).ticks(11).tickFormat(d3.format("d")))
+                .selectAll("text").attr("class", "axis-text");
+
+            // Ocultar la línea negra del eje inferior para un look más moderno
+            svg.selectAll(".domain").attr("class", "axis-line");
+
+            // Gridlines Verticales (Líneas guía detrás de los puntos)
+            svg.selectAll("xGrid")
+                .data(d3.range(0, 11)) // Un tick por cada número del 0 al 10
+                .enter()
+                .append("line")
+                .attr("x1", d => x(d))
+                .attr("x2", d => x(d))
+                .attr("y1", 0)
+                .attr("y2", height)
+                .attr("stroke", "#313244")
+                .attr("stroke-dasharray", "4,4") // Línea punteada
+                .attr("opacity", 0.5);
+
+            // --- DIBUJO DE LOS PUNTOS CON JITTER ---
+            svg.selectAll("circle")
+                .data(data)
+                .enter()
+                .append("circle")
+                .attr("cx", d => x(d.cvss_score))
+                // Simulamos el ruido (jitter) en Y que hiciste en Python:
+                // height / 2 = centro vertical. Variación aleatoria entre -30px y +30px.
+                .attr("cy", () => (height / 2) + (Math.random() - 0.5) * 60)
+                .attr("r", 7) // Tamaño del punto
+                .attr("fill", "#f38ba8") // Rojo Catppuccin
+                .attr("opacity", 0.6) // Transparencia (alpha=0.5 en python)
+                .attr("stroke", "#11111b") // Borde oscuro
+                .attr("stroke-width", 1)
+                // --- TOOLTIP NATIVO HTML ---
+                .append("title")
+                .text(d => `Paquete: ${d.package_name}\nSeveridad: ${d.vuln_severity.toUpperCase()}\nCVSS: ${d.cvss_score}`);
+        }
+
+
+        // =========================================================
+        // --- LÓGICA PARA GRYPE: VULNERABILIDADES POR REPOSITORIO ---
+        // =========================================================
+        const GRYPE_REPO_URL = '../results/grype-analisis/grype-repo.json';
+
+        d3.json(GRYPE_REPO_URL).then(data => {
+            // Aseguramos el orden de mayor a menor
+            data.sort((a, b) => b.count - a.count);
+            renderGrypeRepoChart(data);
+        }).catch(error => {
+            console.error("Error cargando el JSON de repositorios Grype:", error);
+        });
+
+        function renderGrypeRepoChart(data) {
+            // Margen izquierdo amplio para los nombres de los repositorios
+            const margin = { top: 20, right: 40, bottom: 40, left: 150 };
+            const width = 800 - margin.left - margin.right;
+            const height = Math.max(300, data.length * 35) - margin.top - margin.bottom;
+
+            d3.select("#chart-grype-repo").selectAll("*").remove();
+
+            const svg = d3.select("#chart-grype-repo")
+                .append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                .append("g")
+                .attr("transform", `translate(${margin.left},${margin.top})`);
+
+            const x = d3.scaleLinear()
+                .domain([0, d3.max(data, d => d.count)])
+                .range([0, width]);
+
+            const y = d3.scaleBand()
+                .domain(data.map(d => d.repo))
+                .range([0, height])
+                .padding(0.2);
+
+            // --- GRADIENTE NARANJA ---
+            // Usamos interpolación de naranjas nativa de D3
+            const colorScale = d3.scaleSequential(d3.interpolateOranges)
+                .domain([0, d3.max(data, d => d.count)]);
+
+            // Ejes
+            svg.append("g")
+                .attr("transform", `translate(0,${height})`)
+                .call(d3.axisBottom(x).ticks(5).tickFormat(d3.format("d")))
+                .selectAll("text").attr("class", "axis-text");
+
+            svg.append("g")
+                .call(d3.axisLeft(y))
+                .selectAll("text")
+                .attr("class", "axis-text");
+
+            svg.selectAll(".domain").attr("class", "axis-line");
+
+            // Barras horizontales
+            svg.selectAll("myRect")
+                .data(data)
+                .enter()
+                .append("rect")
+                .attr("x", x(0))
+                .attr("y", d => y(d.repo))
+                .attr("width", d => x(d.count))
+                .attr("height", y.bandwidth())
+                .attr("fill", d => {
+                    const colorBase = colorScale(d.count);
+                    // Aseguramos que los valores bajos no sean blancos transparentes contra el fondo oscuro
+                    return d.count === 0 ? "transparent" : d3.color(colorBase).darker(0.3);
+                })
+                .attr("rx", 4);
+
+            // Etiquetas numéricas
+            svg.selectAll("myLabels")
+                .data(data)
+                .enter()
+                .append("text")
+                .attr("class", "label-text")
+                .attr("x", d => x(d.count) + 5)
+                .attr("y", d => y(d.repo) + y.bandwidth() / 2 + 4)
+                .text(d => d.count)
+                .style("fill", "#cdd6f4")
+                .style("text-anchor", "start");
+        }
+
+
+        // =========================================================
+        // --- LÓGICA PARA GRYPE: TOP 3 PAQUETES ---
+        // =========================================================
+        const GRYPE_PKGS_URL = '../results/grype-analisis/grype-top-paquetes.json';
+
+        d3.json(GRYPE_PKGS_URL).then(data => {
+            renderGrypePkgsGrid(data);
+        }).catch(error => {
+            console.error("Error cargando el JSON de paquetes Grype:", error);
+        });
+
+        function renderGrypePkgsGrid(data) {
+            const grid = d3.select("#grype-pkgs-grid");
+            grid.selectAll("*").remove();
+
+            // Usamos la misma clase "repo-mini-card" que ya tienes en el CSS
+            const cards = grid.selectAll(".repo-mini-card")
+                .data(data)
+                .enter()
+                .append("div")
+                .attr("class", "repo-mini-card")
+                // Le damos un diseño flexible (flexbox) para alinear contenido
+                .style("display", "flex")
+                .style("flex-direction", "column")
+                .style("justify-content", "space-between");
+
+            // Título de la tarjeta (Nombre del paquete)
+            cards.append("h3")
+                .text(d => `📦 ${d.package_name}`)
+                .style("color", "#fab387") // Tono Peach/Naranja
+                .style("word-break", "break-all");
+
+            // Contenedor para el cuerpo de la tarjeta
+            const content = cards.append("div");
+
+            // Cantidad de vulnerabilidades (Número grande)
+            content.append("div")
+                .html(d => `<span style="color:#a6adc8; font-size:14px;">Total de Vulnerabilidades:</span> <br>
+                            <span style="font-size:28px; font-weight:bold; color:#f38ba8">${d.count}</span>`);
+
+            // Versión actual
+            content.append("div")
+                .style("margin-top", "15px")
+                .html(d => `<span style="color:#a6adc8; font-size:14px;">Versión Instalada:</span> <br>
+                            <span style="font-family:monospace; background-color:#1e1e2e; padding:3px 6px; border-radius:4px; font-size:13px;">${d.current_version}</span>`);
+
+            // Etiqueta (Badge) de Solución/Fix
+            cards.append("div")
+                .style("margin-top", "20px")
+                .style("padding", "8px 10px")
+                .style("border-radius", "6px")
+                .style("text-align", "center")
+                .style("font-size", "13px")
+                .style("font-weight", "bold")
+                // Si hay fix, fondo verdoso transparente. Si no, rojo transparente.
+                .style("background-color", d => d.has_fix ? "rgba(166, 227, 161, 0.15)" : "rgba(243, 139, 168, 0.15)")
+                // Si hay fix, texto verde. Si no, rojo.
+                .style("color", d => d.has_fix ? "#a6e3a1" : "#f38ba8")
+                .text(d => d.has_fix ? `✓ Fix disponible en v${d.fix_version}` : "✗ Sin Fix oficial disponible");
+        }
+
+
+        // =========================================================
+        // --- LÓGICA PARA RESUMEN GLOBAL (MAX Y MIN) ---
+        // =========================================================
+        const GLOBAL_URL = '../results/grype-analisis/resumen-global.json';
+
+        d3.json(GLOBAL_URL).then(data => {
+            renderGlobalSummary(data);
+        }).catch(error => {
+            console.error("Error cargando el JSON de resumen global:", error);
+        });
+
+        function renderGlobalSummary(data) {
+            const container = d3.select("#global-kpi-container");
+            container.selectAll("*").remove();
+
+            // Función auxiliar para crear las tarjetas HTML
+            function createCard(title, dataObj, colorHex, icon) {
+                return `
+                    <div style="flex: 1; min-width: 300px; background-color: #11111b; border-top: 4px solid ${colorHex}; border-radius: 8px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.2);">
+                        <div style="color: #bac2de; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;">
+                            ${icon} ${title}
+                        </div>
+                        <h3 style="color: ${colorHex}; font-size: 26px; margin: 0 0 15px 0; word-break: break-all;">
+                            ${dataObj.repo}
+                        </h3>
+                        <div style="font-size: 36px; font-weight: bold; color: #cdd6f4; margin-bottom: 15px;">
+                            ${dataObj.total} <span style="font-size: 16px; font-weight: normal; color: #a6adc8;">problemas en total</span>
+                        </div>
+                        
+                        <div style="display: flex; gap: 10px; border-top: 1px dashed #313244; padding-top: 15px;">
+                            <div style="flex: 1; background-color: #181825; padding: 10px; border-radius: 6px; text-align: center;">
+                                <div style="font-size: 12px; color: #89b4fa; margin-bottom: 5px;">CodeQL (Código)</div>
+                                <div style="font-size: 18px; font-weight: bold; color: #cdd6f4;">${dataObj.codeql}</div>
+                            </div>
+                            <div style="flex: 1; background-color: #181825; padding: 10px; border-radius: 6px; text-align: center;">
+                                <div style="font-size: 12px; color: #a6e3a1; margin-bottom: 5px;">Grype (Paquetes)</div>
+                                <div style="font-size: 18px; font-weight: bold; color: #cdd6f4;">${dataObj.grype}</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Inyectamos el HTML de ambas tarjetas
+            // Tarjeta MAX (Roja - #f38ba8)
+            const htmlMax = createCard("Mayor Cantidad de Vulnerabilidades", data.max, "#f38ba8", "🚨");
+
+            // Tarjeta MIN (Verde - #a6e3a1)
+            const htmlMin = createCard("Menor Cantidad de Vulnerabilidades", data.min, "#a6e3a1", "🏆");
+
+            container.html(htmlMax + htmlMin);
+        }
+    </script>
+
+</body>
+
+</html>
