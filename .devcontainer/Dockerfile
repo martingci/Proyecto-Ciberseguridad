@@ -1,4 +1,7 @@
-FROM mcr.microsoft.com/devcontainers/python:1-3.11-bullseye
+FROM mcr.microsoft.com/devcontainers/python:3.14-bookworm
+
+# Python env
+RUN apt-get update && apt-get install -y python3-venv
 
 # Node.JS 
 RUN rm -f /etc/apt/sources.list.d/yarn.list && \
@@ -26,16 +29,12 @@ RUN curl -sSfL https://github.com/github/codeql-cli-binaries/releases/download/v
 
 
 # CodeQL CLI - Packages
-USER vscode
 RUN codeql pack download codeql/python-queries \
     && codeql pack download codeql/javascript-queries \
     && codeql pack download codeql/java-queries \
-    && codeql pack download codeql/actions-queries \
-    && codeql pack download codeql/csharp-queries \
-    && codeql pack download codeql/cpp-queries
+    && codeql pack download codeql/actions-queries 
 
 # Check versions of installed tools
-USER root
 RUN echo "CodeQL version:" && codeql version \
     && echo "Grype version:" && grype version \
     && echo "Node.js version:" && node --version \
