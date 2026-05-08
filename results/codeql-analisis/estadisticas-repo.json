@@ -58,9 +58,5 @@
     {
         "repo":"streamdown",
         "count":2
-    },
-    {
-        "repo":"serve",
-        "count":1
     }
 ]

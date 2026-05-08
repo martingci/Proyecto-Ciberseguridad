@@ -1,9 +1,9 @@
 {
     "max": {
         "repo": "vercel",
-        "total": 10721,
+        "total": 10793,
         "codeql": 646,
-        "grype": 10075
+        "grype": 10147
     },
     "min": {
         "repo": "kirimase",

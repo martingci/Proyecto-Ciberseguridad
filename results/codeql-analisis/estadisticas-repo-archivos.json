@@ -220,16 +220,6 @@
         ]
     },
     {
-        "repo": "serve",
-        "files": [
-            {
-                "file_path": "source/utilities/logger.ts",
-                "count": 1,
-                "percentage": 100.0
-            }
-        ]
-    },
-    {
         "repo": "streamdown",
         "files": [
             {

@@ -275,16 +275,6 @@
         ]
     },
     {
-        "repo": "serve",
-        "rules": [
-            {
-                "rule_id": "js/log-injection",
-                "count": 1,
-                "percentage": 100.0
-            }
-        ]
-    },
-    {
         "repo": "streamdown",
         "rules": [
             {
