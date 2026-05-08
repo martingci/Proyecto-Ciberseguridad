@@ -1,0 +1,22 @@
+[
+    {
+        "repo": "vercel",
+        "count": 83517
+    },
+    {
+        "repo": "examples",
+        "count": 59890
+    },
+    {
+        "repo": "next.js",
+        "count": 10004
+    },
+    {
+        "repo": "ai",
+        "count": 3838
+    },
+    {
+        "repo": "streamdown",
+        "count": 1025
+    }
+]
