@@ -1,22 +1,22 @@
 [
     {
-        "repo": "vercel",
-        "count": 83517
-    },
-    {
-        "repo": "examples",
-        "count": 59890
-    },
-    {
-        "repo": "next.js",
-        "count": 10004
-    },
-    {
-        "repo": "ai",
-        "count": 3838
-    },
-    {
         "repo": "streamdown",
         "count": 1025
+    },
+    {
+        "repo": "swr",
+        "count": 786
+    },
+    {
+        "repo": "chatbot",
+        "count": 759
+    },
+    {
+        "repo": "serve",
+        "count": 701
+    },
+    {
+        "repo": "next-learn",
+        "count": 681
     }
 ]

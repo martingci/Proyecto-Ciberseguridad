@@ -264,6 +264,10 @@
                 <div id="chart-grype-repo"></div>
             </div>
             <div class="chart-card">
+                <h2>Top 10 Vulnerabilidades (CVE/GHSA) Más Detectadas</h2>
+                <div id="chart-grype-top10"></div>
+            </div>
+            <div class="chart-card">
                 <h2>Top 3 Paquetes Críticos (Más Vulnerables)</h2>
                 <div id="grype-pkgs-grid" class="repo-grid"></div>
             </div>
@@ -305,6 +309,90 @@
     </div>
 
     <script>
+        // =========================================================
+        // --- LÓGICA PARA GRYPE: TOP 10 VULNERABILIDADES ---
+        // =========================================================
+        const GRYPE_TOP10_URL = '../results/grype-analisis/grype-top-10-vulns.json';
+
+        d3.json(GRYPE_TOP10_URL).then(data => {
+            // Ordenamos de mayor a menor para que la más frecuente esté arriba
+            data.sort((a, b) => b.count - a.count);
+            renderGrypeTop10Chart(data);
+        }).catch(error => {
+            console.error("Error cargando el JSON de Top 10 vulnerabilidades:", error);
+        });
+
+        function renderGrypeTop10Chart(data) {
+            // Margen izquierdo amplio (180) para los IDs tipo GHSA-xxxx-xxxx
+            const margin = { top: 20, right: 60, bottom: 40, left: 180 };
+            const width = 800 - margin.left - margin.right;
+            const height = Math.max(350, data.length * 35) - margin.top - margin.bottom;
+
+            d3.select("#chart-grype-top10").selectAll("*").remove();
+
+            const svg = d3.select("#chart-grype-top10")
+                .append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                .append("g")
+                .attr("transform", `translate(${margin.left},${margin.top})`);
+
+            const x = d3.scaleLinear()
+                .domain([0, d3.max(data, d => d.count)])
+                .range([0, width]);
+
+            const y = d3.scaleBand()
+                .domain(data.map(d => d.vuln_id))
+                .range([0, height])
+                .padding(0.2);
+
+            // --- GRADIENTE ROJO (Reds) ---
+            const colorScale = d3.scaleSequential(d3.interpolateReds)
+                .domain([0, d3.max(data, d => d.count)]);
+
+            // Ejes
+            svg.append("g")
+                .attr("transform", `translate(0,${height})`)
+                .call(d3.axisBottom(x).ticks(5).tickFormat(d3.format("d")))
+                .selectAll("text").attr("class", "axis-text");
+
+            svg.append("g")
+                .call(d3.axisLeft(y))
+                .selectAll("text")
+                .attr("class", "axis-text")
+                .style("font-family", "monospace"); // Fuente de código para IDs
+
+            svg.selectAll(".domain").attr("class", "axis-line");
+
+            // Barras horizontales
+            svg.selectAll("myRect")
+                .data(data)
+                .enter()
+                .append("rect")
+                .attr("x", x(0))
+                .attr("y", d => y(d.vuln_id))
+                .attr("width", d => x(d.count))
+                .attr("height", y.bandwidth())
+                .attr("fill", d => {
+                    const colorBase = colorScale(d.count);
+                    // Oscurecemos para que resalte contra el fondo oscuro
+                    return d3.color(colorBase).darker(0.2);
+                })
+                .attr("rx", 4);
+
+            // Etiquetas numéricas al final de la barra
+            svg.selectAll("myLabels")
+                .data(data)
+                .enter()
+                .append("text")
+                .attr("class", "label-text")
+                .attr("x", d => x(d.count) + 8)
+                .attr("y", d => y(d.vuln_id) + y.bandwidth() / 2 + 4)
+                .text(d => d.count)
+                .style("fill", "#cdd6f4")
+                .style("text-anchor", "start");
+        }
+
 
         // =========================================================
         // --- LÓGICA PARA SBOM: ECOSISTEMAS Y REPOS ---

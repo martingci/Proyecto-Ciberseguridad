@@ -1,22 +1,6 @@
 [
     {
         "language": "javascript",
-        "count": 160016
-    },
-    {
-        "language": "rust",
-        "count": 3295
-    },
-    {
-        "language": "python",
-        "count": 588
-    },
-    {
-        "language": "ruby",
-        "count": 438
-    },
-    {
-        "language": "go",
-        "count": 160
+        "count": 7482
     }
 ]
